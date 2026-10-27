@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#183b2c">
+    <title>Entrar | Escola Agrícola</title>
+</head>
+<body>
+    <main class="page">
+        <section class="welcome" aria-label="Apresentação">
+            <div class="brand"><span class="brand-mark" aria-hidden="true">⌁</span> Escola Agrícola</div>
+            <div class="welcome-copy">
+                <p class="eyebrow">Conhecimento que cria raízes</p>
+                <h1>Aprender. Cultivar. Transformar.</h1>
+                <p>Seu espaço para acompanhar a jornada de aprendizado, projetos e novas possibilidades.</p>
+            </div>
+            <p class="footer-note">ETEC Orlando Quagliato · Unidades Rurais e Urbanas</p>
+        </section>
+
+        <section class="login-area" aria-label="Acesso à conta">
+            <form class="login-card" id="login-form">
+                <h2>Bem-vindo de volta</h2>
+                <p class="subtitle">Entre para continuar sua jornada.</p>
+
+                <div class="field">
+                    <label for="email">E-mail</label>
+                    <input id="email" name="email" type="email" autocomplete="email" placeholder="voce@exemplo.com" required>
+                </div>
+
+                <div class="field">
+                    <label for="password">Senha</label>
+                    <div class="input-wrap">
+                        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Digite sua senha" required>
+                        <button class="toggle-password" id="toggle-password" type="button" aria-label="Mostrar senha">Mostrar</button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember"><input type="checkbox" name="remember"> Lembrar de mim</label>
+                    <a href="#recuperar">Esqueci minha senha</a>
+                </div>
+
+                <button class="submit-button" type="submit">Entrar na plataforma</button>
+                <p class="status" id="status" role="status" aria-live="polite"></p>
+                <p class="signup">Ainda não tem uma conta? <a href="#criar-conta">Criar conta</a></p>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        const passwordInput = document.querySelector('#password');
+        const togglePassword = document.querySelector('#toggle-password');
+        const loginForm = document.querySelector('#login-form');
+        const status = document.querySelector('#status');
+
+        togglePassword.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            togglePassword.textContent = isPassword ? 'Ocultar' : 'Mostrar';
+            togglePassword.setAttribute('aria-label', isPassword ? 'Ocultar senha' : 'Mostrar senha');
+        });
+
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            status.textContent = 'Acesso pronto para ser conectado ao sistema.';
+        });
+    </script>
+</body>
+</html>
