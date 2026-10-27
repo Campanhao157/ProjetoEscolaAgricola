@@ -1,34 +1,38 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <meta name="theme-color" content="#183b2c">
-    <title>Entrar | Escola Agrícola</title>
-</head>
-<body>
-    <main class="page">
-        <section class="welcome" aria-label="Apresentação">
-            <div class="brand"><span class="brand-mark" aria-hidden="true">⌁</span> Escola Agrícola</div>
-            <div class="welcome-copy">
-                <p class="eyebrow">Conhecimento que cria raízes</p>
-                <h1>Aprender. Cultivar. Transformar.</h1>
-                <p>Seu espaço para acompanhar a jornada de aprendizado, projetos e novas possibilidades.</p>
-            </div>
-            <p class="footer-note">ETEC Orlando Quagliato · Unidades Rurais e Urbanas</p>
-        </section>
-
-        <section class="login-area" aria-label="Acesso à conta">
-            <form class="login-card" id="login-form">
-                <h2>Bem-vindo de volta</h2>
-                <p class="subtitle">Entre para continuar sua jornada.</p>
-
-                <div class="field">
-                    <label for="email">E-mail</label>
-                    <input id="email" name="email" type="email" autocomplete="email" placeholder="voce@exemplo.com" required>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style.css">
+        <!-- O defer aguarda o carregamento do HTML antes de executar a lógica. -->
+        <script src="script.js" defer></script>
+        <meta name="theme-color" content="#183b2c">
+        <title>Entrar | Escola Agrícola</title>
+    </head>
+    <body>
+        <main class="page">
+            <!-- Área institucional da Escola Agrícola. -->
+            <section class="welcome" aria-label="Apresentação">
+                <div class="brand"><span class="brand-mark" aria-hidden="true">⌁</span> Escola Agrícola</div>
+                <div class="welcome-copy">
+                    <p class="eyebrow">Conhecimento que cria raízes</p>
+                    <h1>Aprender. Cultivar. Transformar.</h1>
+                    <p>Seu espaço para acompanhar a jornada de aprendizado, projetos e novas possibilidades.</p>
                 </div>
-
+                <p class="footer-note">ETEC Orlando Quagliato · Unidades Rurais e Urbanas</p>
+            </section>
+            
+            <!-- Formulário de acesso do usuário. -->
+            <section class="login-area" aria-label="Acesso à conta">
+                <form class="login-card" id="login-form">
+                    <h2>Bem-vindo de volta</h2>
+                    <p class="subtitle">Entre para continuar sua jornada.</p>
+                    
+                    <div class="field">
+                        <label for="email">E-mail</label>
+                        <input id="email" name="email" type="email" autocomplete="email" placeholder="voce@exemplo.com" required>
+                    </div>
+                    
                 <div class="field">
                     <label for="password">Senha</label>
                     <div class="input-wrap">
@@ -49,6 +53,5 @@
         </section>
     </main>
 
-    <script src="script.js"></script>
 </body>
 </html>

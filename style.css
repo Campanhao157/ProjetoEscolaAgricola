@@ -1,3 +1,4 @@
+/* Cores e medidas principais da identidade visual. */
 :root {
             --forest: #183b2c;
             --forest-light: #2e6048;
@@ -19,6 +20,7 @@
             font-family: "Trebuchet MS", "Segoe UI", sans-serif;
         }
 
+        /* Divide a tela entre a apresentação e o formulário. */
         .page {
             display: grid;
             grid-template-columns: minmax(320px, 0.9fr) minmax(440px, 1.1fr);
@@ -124,6 +126,7 @@
             font-size: 13px;
         }
 
+        /* Centraliza o formulário na área clara da página. */
         .login-area {
             display: flex;
             align-items: center;
@@ -247,6 +250,8 @@
             text-align: center;
         }
 
+        .status.error { color: #b4493d; }
+
         .signup {
             margin: 34px 0 0;
             color: var(--muted);
@@ -259,6 +264,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Empilha as áreas em telas menores. */
         @media (max-width: 760px) {
             .page { grid-template-columns: 1fr; }
             .welcome { min-height: 360px; padding: 28px 28px 34px; }
