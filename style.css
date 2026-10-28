@@ -449,6 +449,83 @@
             .agenda-status { margin-top: 3px; font-size: 10px; }
         }
 
+        /* Painel administrativo. */
+        .admin-hero { min-height: 300px; }
+        .admin-hero .hero-content { max-width: 600px; }
+        .admin-hero h1 { max-width: 560px; font-size: clamp(40px, 4.5vw, 58px); }
+        .admin-hero-actions { display: flex; align-items: center; gap: 22px; }
+        .admin-secondary-link { color: var(--white); font-size: 13px; }
+        .admin-secondary-link:hover { color: var(--leaf); }
+        .admin-overview { padding-top: 38px; }
+        .admin-data-note { color: var(--muted); font-size: 11px; }
+        .admin-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); background: var(--white); }
+        .admin-stat { display: flex; min-width: 0; min-height: 132px; flex-direction: column; justify-content: center; padding: 18px 22px; }
+        .admin-stat + .admin-stat { border-left: 1px solid var(--line); }
+        .admin-stat-label { color: var(--muted); font-size: 12px; line-height: 1.4; }
+        .admin-stat strong { margin: 8px 0 3px; color: var(--forest); font-family: Georgia, serif; font-size: 34px; font-weight: 400; line-height: 1; }
+        .stat-percent { margin-left: 2px; font-family: "Trebuchet MS", "Segoe UI", sans-serif; font-size: 20px; }
+        .admin-stat-note { color: var(--muted); font-size: 11px; }
+        .admin-workspace { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; padding-top: 42px; }
+        .admin-section .section-heading, .admin-activity .section-heading { margin-bottom: 14px; }
+        .admin-list { border-top: 1px solid var(--line); }
+        .admin-list-row, .admin-course-row { display: flex; min-width: 0; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+        .admin-list-avatar, .admin-course-icon { display: grid; width: 38px; height: 38px; flex: 0 0 auto; place-items: center; border-radius: 50%; color: #52743a; background: #edf2e5; font-size: 11px; font-weight: 700; }
+        .avatar-gold { color: #8a6429; background: #f7efdc; }
+        .avatar-blue { color: #41656c; background: #e6eff0; }
+        .admin-list-copy { min-width: 0; flex: 1; }
+        .admin-list-copy h3 { overflow: hidden; margin: 0 0 4px; color: var(--ink); font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+        .admin-list-copy p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+        .admin-pill { flex: 0 0 auto; padding: 5px 8px; font-size: 10px; }
+        .pill-active { color: #42633a; background: #edf2e5; }
+        .pill-pending { color: #8a6429; background: #f7efdc; }
+        .admin-course-icon { width: 36px; height: 36px; font-size: 19px; }
+        .icon-water { color: #41656c; background: #e6eff0; }
+        .course-state { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; }
+        .course-state > span { width: 7px; height: 7px; border-radius: 50%; background: #7b9d54; }
+        .course-state.state-draft > span { background: #c49343; }
+        .admin-activity { padding-top: 42px; }
+        .activity-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); }
+        .activity-marker { width: 9px; height: 9px; flex: 0 0 auto; border-radius: 50%; }
+        .marker-green { background: #7b9d54; }
+        .marker-gold { background: #c49343; }
+        .activity-row p { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 4px; margin: 0; }
+        .activity-row strong { color: var(--ink); font-size: 12px; font-weight: 600; }
+        .activity-row p span, .activity-row time { color: var(--muted); font-size: 11px; }
+        .activity-row time { flex: 0 0 auto; }
+
+        @media (max-width: 900px) {
+            .admin-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .admin-stat:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); }
+            .admin-stat:nth-child(4) { border-top: 1px solid var(--line); }
+            .admin-workspace { gap: 24px; }
+        }
+
+        @media (max-width: 760px) {
+            .admin-page .dashboard-header { min-height: 70px; }
+            .admin-page .dashboard-nav { gap: 10px; }
+            .admin-page .nav-link { font-size: 11px; }
+            .admin-hero { min-height: 330px; }
+            .admin-hero h1 { font-size: 42px; }
+            .admin-overview { padding-top: 30px; }
+            .admin-stat { min-height: 116px; padding: 15px; }
+            .admin-workspace { grid-template-columns: 1fr; gap: 32px; padding-top: 34px; }
+            .admin-activity { padding-top: 34px; }
+        }
+
+        @media (max-width: 420px) {
+            .admin-page .dashboard-nav { gap: 8px; }
+            .admin-page .nav-link { font-size: 10px; }
+            .admin-hero h1 { font-size: 38px; }
+            .admin-hero-actions { align-items: flex-start; flex-direction: column; gap: 13px; }
+            .admin-stat { min-height: 108px; padding: 12px; }
+            .admin-stat-label { font-size: 11px; }
+            .admin-stat strong { font-size: 30px; }
+            .admin-stat-note { font-size: 10px; }
+            .admin-list-row, .admin-course-row { gap: 8px; }
+            .admin-list-copy p { font-size: 10px; }
+            .course-state { font-size: 9px; }
+        }
+
         @keyframes rise {
             from { opacity: 0; transform: translateY(14px); }
             to { opacity: 1; transform: translateY(0); }

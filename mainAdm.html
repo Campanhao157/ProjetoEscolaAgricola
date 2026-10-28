@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#183b2c">
+	<title>Painel administrativo | Escola Agrícola</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page admin-page">
+	<div class="dashboard-shell">
+		<header class="dashboard-header">
+			<a class="brand dashboard-brand" href="mainAdm.html" aria-label="Escola Agrícola, painel administrativo">
+				<span class="brand-mark" aria-hidden="true">⌁</span>
+				<span>Escola Agrícola</span>
+			</a>
+			<nav class="dashboard-nav" aria-label="Navegação administrativa">
+				<a class="nav-link active" href="#inicio" aria-current="page">Visão geral</a>
+				<a class="nav-link" href="#estudantes">Estudantes</a>
+				<a class="nav-link" href="#cursos">Cursos</a>
+				<a class="nav-link" href="#relatorios">Relatórios</a>
+			</nav>
+			<a class="profile-link" href="#perfil" aria-label="Perfil do administrador">
+				<span class="profile-avatar" aria-hidden="true">AD</span>
+				<span class="profile-name">Administrador</span>
+			</a>
+		</header>
+
+		<main class="dashboard-main" id="inicio">
+			<section class="dashboard-hero admin-hero" aria-labelledby="admin-title">
+				<img class="hero-image" src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1800&q=85" alt="Plantação verde ao nascer do sol">
+				<div class="hero-content">
+					<p class="eyebrow">PAINEL ADMINISTRATIVO</p>
+					<h1 id="admin-title">Bom dia, administrador.</h1>
+					<p>Acompanhe a comunidade escolar e mantenha cursos e atividades em movimento.</p>
+					<div class="admin-hero-actions">
+						<a class="hero-button" href="#estudantes">Gerenciar estudantes <span aria-hidden="true">→</span></a>
+						<a class="admin-secondary-link" href="#cursos">Ver cursos</a>
+					</div>
+				</div>
+				<p class="hero-caption">ETEC Orlando Quagliato · Gestão escolar</p>
+			</section>
+
+			<section class="admin-overview" aria-labelledby="overview-title">
+				<div class="section-heading">
+					<div>
+						<p class="section-kicker">RESUMO DA ESCOLA</p>
+						<h2 id="overview-title">Visão geral</h2>
+					</div>
+					<span class="admin-data-note">Dados de demonstração</span>
+				</div>
+				<div class="admin-stat-grid">
+					<article class="admin-stat">
+						<span class="admin-stat-label">Estudantes ativos</span>
+						<strong>248</strong>
+						<span class="admin-stat-note">em todas as unidades</span>
+					</article>
+					<article class="admin-stat">
+						<span class="admin-stat-label">Cursos publicados</span>
+						<strong>12</strong>
+						<span class="admin-stat-note">2 em preparação</span>
+					</article>
+					<article class="admin-stat">
+						<span class="admin-stat-label">Solicitações pendentes</span>
+						<strong>08</strong>
+						<span class="admin-stat-note">aguardando análise</span>
+					</article>
+					<article class="admin-stat">
+						<span class="admin-stat-label">Frequência média</span>
+						<strong>94<span class="stat-percent">%</span></strong>
+						<span class="admin-stat-note">neste mês</span>
+					</article>
+				</div>
+			</section>
+
+			<div class="admin-workspace">
+				<section class="admin-section" id="estudantes" aria-labelledby="students-title">
+					<div class="section-heading">
+						<div>
+							<p class="section-kicker">COMUNIDADE</p>
+							<h2 id="students-title">Estudantes recentes</h2>
+						</div>
+						<a class="text-link" href="#estudantes">Ver lista <span aria-hidden="true">→</span></a>
+					</div>
+					<div class="admin-list">
+						<article class="admin-list-row">
+							<span class="admin-list-avatar">MC</span>
+							<div class="admin-list-copy"><h3>Marina Costa</h3><p>Unidade Rural · Técnico em Agropecuária</p></div>
+							<span class="admin-pill pill-active">Ativo</span>
+						</article>
+						<article class="admin-list-row">
+							<span class="admin-list-avatar avatar-gold">JP</span>
+							<div class="admin-list-copy"><h3>João Pedro Lima</h3><p>Unidade Urbana · Técnico em Meio Ambiente</p></div>
+							<span class="admin-pill pill-pending">Pendente</span>
+						</article>
+						<article class="admin-list-row">
+							<span class="admin-list-avatar avatar-blue">LS</span>
+							<div class="admin-list-copy"><h3>Luiza Santos</h3><p>Unidade Rural · Técnico em Agropecuária</p></div>
+							<span class="admin-pill pill-active">Ativo</span>
+						</article>
+					</div>
+				</section>
+
+				<section class="admin-section" id="cursos" aria-labelledby="courses-title">
+					<div class="section-heading">
+						<div>
+							<p class="section-kicker">ENSINO</p>
+							<h2 id="courses-title">Cursos em destaque</h2>
+						</div>
+						<a class="text-link" href="#cursos">Ver cursos <span aria-hidden="true">→</span></a>
+					</div>
+					<div class="admin-list">
+						<article class="admin-course-row">
+							<div class="admin-course-icon icon-leaf" aria-hidden="true">✳</div>
+							<div class="admin-list-copy"><h3>Técnico em Agropecuária</h3><p>Unidade Rural <span aria-hidden="true">·</span> 86 estudantes</p></div>
+							<span class="course-state"><span></span>Publicado</span>
+						</article>
+						<article class="admin-course-row">
+							<div class="admin-course-icon icon-sun" aria-hidden="true">◉</div>
+							<div class="admin-list-copy"><h3>Técnico em Meio Ambiente</h3><p>Unidade Urbana <span aria-hidden="true">·</span> 54 estudantes</p></div>
+							<span class="course-state"><span></span>Publicado</span>
+						</article>
+						<article class="admin-course-row">
+							<div class="admin-course-icon icon-water" aria-hidden="true">≈</div>
+							<div class="admin-list-copy"><h3>Gestão de Recursos Hídricos</h3><p>Unidade Rural <span aria-hidden="true">·</span> 32 estudantes</p></div>
+							<span class="course-state state-draft"><span></span>Rascunho</span>
+						</article>
+					</div>
+				</section>
+			</div>
+
+			<section class="admin-activity" id="relatorios" aria-labelledby="activity-title">
+				<div class="section-heading">
+					<div>
+						<p class="section-kicker">ACOMPANHAMENTO</p>
+						<h2 id="activity-title">Atividade recente</h2>
+					</div>
+					<a class="text-link" href="#relatorios">Abrir relatórios <span aria-hidden="true">→</span></a>
+				</div>
+				<div class="activity-row">
+					<span class="activity-marker marker-green" aria-hidden="true"></span>
+					<p><strong>Nova solicitação de matrícula</strong><span>João Pedro Lima · Técnico em Meio Ambiente</span></p>
+					<time datetime="2026-10-28T09:14">09:14</time>
+				</div>
+				<div class="activity-row">
+					<span class="activity-marker marker-gold" aria-hidden="true"></span>
+					<p><strong>Curso atualizado</strong><span>Técnico em Agropecuária · Unidade Rural</span></p>
+					<time datetime="2026-10-28T08:42">08:42</time>
+				</div>
+			</section>
+		</main>
+		<footer class="dashboard-footer">ETEC Orlando Quagliato <span aria-hidden="true">·</span> Unidades Rurais e Urbanas</footer>
+	</div>
+</body>
+</html>
