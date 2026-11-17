@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | Escola Agrícola</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Script responsável por mostrar a senha e exibir mensagens -->
+    <script src="script.js" defer></script>
+</head>
+
+<body class="login-page">
+
+    <main class="login-container">
+
+        <!-- Lado esquerdo: apresentação do sistema -->
+        <section class="login-banner">
+
+            <div class="login-brand">
+                <span class="brand-icon">EA</span>
+
+                <span class="brand-name">
+                    Escola Agrícola
+                </span>
+            </div>
+
+            <div class="login-banner-content">
+
+                <span class="login-eyebrow">
+                    PLATAFORMA EDUCACIONAL
+                </span>
+
+                <h1>
+                    Aprender, cultivar e construir o futuro.
+                </h1>
+
+                <p>
+                    Acesse sua área para acompanhar atividades,
+                    cursos e informações da Escola Agrícola.
+                </p>
+
+            </div>
+
+            <div class="login-banner-footer">
+                Educação que transforma o campo e a sociedade.
+            </div>
+
+        </section>
+
+        <!-- Lado direito: formulário de login -->
+        <section class="login-form-section">
+
+            <div class="login-form-wrapper">
+
+                <div class="login-heading">
+
+                    <span class="login-eyebrow">
+                        BEM-VINDO DE VOLTA
+                    </span>
+
+                    <h2>Entre na sua conta</h2>
+
+                    <p>
+                        Informe seus dados para acessar a plataforma.
+                    </p>
+
+                </div>
+
+                <!-- Mensagens de erro e sucesso -->
+                <div
+                    id="status"
+                    class="login-status"
+                    role="status"
+                    aria-live="polite"
+                ></div>
+
+                <!-- Formulário conectado ao login.php -->
+                <form action="login.php" method="POST" class="login-form">
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="login"
+                    >
+
+                    <!-- Campo de e-mail -->
+                    <div class="form-group">
+
+                        <label for="email">
+                            E-mail
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Digite seu e-mail"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+                    <!-- Campo de senha -->
+                    <div class="form-group">
+
+                        <label for="password">
+                            Senha
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Digite sua senha"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                id="toggle-password"
+                                class="toggle-password"
+                                aria-label="Mostrar senha"
+                            >
+                                Mostrar
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Botão de acesso -->
+                    <button
+                        type="submit"
+                        class="login-button"
+                    >
+                        Entrar na plataforma
+                    </button>
+
+                </form>
+
+                <!-- Link para cadastro -->
+                <div class="login-register">
+
+                    <p>
+                        Ainda não possui uma conta?
+                    </p>
+
+                    <a href="cadastro.php">
+                        Criar conta
+                    </a>
+
+                </div>
+
+                <div class="login-footer">
+                    Escola Agrícola
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>
