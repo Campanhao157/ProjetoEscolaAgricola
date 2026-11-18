@@ -105,6 +105,11 @@ $initials = htmlspecialchars(
     'UTF-8'
 );
 
+function escUser(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+
 // ==========================================================
 // 6. CONSULTA AO BANCO DE DADOS
 // ==========================================================
