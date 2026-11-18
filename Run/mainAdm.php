@@ -1,481 +1,299 @@
 ```php
 <?php
-
-// Inicia a sessão.
 session_start();
 
-// Verifica se existe um usuário autenticado.
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.html');
     exit;
 }
 
-// Somente administradores podem acessar este painel.
 if (($_SESSION['user_role'] ?? '') !== 'admin') {
     header('Location: mainUsuario.php');
     exit;
 }
 
-// Recupera o nome do administrador.
-$adminName = htmlspecialchars(
-    $_SESSION['user_name'] ?? 'Administrador',
-    ENT_QUOTES,
-    'UTF-8'
-);
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
-// Gera as iniciais do administrador.
-$nameParts = preg_split(
-    '/\s+/u',
-    trim($_SESSION['user_name'] ?? 'Administrador')
-);
+$csrfToken = $_SESSION['csrf_token'];
+$dbPath = __DIR__ . '/database.sqlite';
 
+try {
+    $pdo = new PDO('sqlite:' . $dbPath);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS items (
+        id INTEGER PRIMARY KEY,
+        name VARCHAR(120) NOT NULL,
+        quantity INTEGER NOT NULL,
+        expiration_date DATE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $postedToken = $_POST['csrf_token'] ?? '';
+        if (!hash_equals($csrfToken, $postedToken)) {
+            header('Location: mainAdm.php?error=security');
+            exit;
+        }
+
+        $action = $_POST['action'] ?? '';
+
+        if ($action === 'create' || $action === 'update') {
+            $name = trim($_POST['name'] ?? '');
+            $quantity = filter_var($_POST['quantity'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+            $expirationDate = trim($_POST['expiration_date'] ?? '');
+
+            $validDate = preg_match('/^\d{4}-\d{2}-\d{2}$/', $expirationDate)
+                && (bool) strtotime($expirationDate);
+
+            if ($name === '' || strlen($name) > 120 || $quantity === false || !$validDate) {
+                header('Location: mainAdm.php?error=invalid');
+                exit;
+            }
+
+            if ($action === 'create') {
+                $statement = $pdo->prepare(
+                    'INSERT INTO items (name, quantity, expiration_date) VALUES (:name, :quantity, :expiration_date)'
+                );
+                $statement->execute([
+                    ':name' => $name,
+                    ':quantity' => $quantity,
+                    ':expiration_date' => $expirationDate
+                ]);
+                header('Location: mainAdm.php?success=created');
+            } else {
+                $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+                $statement = $pdo->prepare(
+                    'UPDATE items SET name = :name, quantity = :quantity, expiration_date = :expiration_date WHERE id = :id'
+                );
+                $statement->execute([
+                    ':name' => $name,
+                    ':quantity' => $quantity,
+                    ':expiration_date' => $expirationDate,
+                    ':id' => $id
+                ]);
+                header('Location: mainAdm.php?success=updated');
+            }
+            exit;
+        }
+
+        if ($action === 'delete') {
+            $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+            $statement = $pdo->prepare('DELETE FROM items WHERE id = :id');
+            $statement->execute([':id' => $id]);
+            header('Location: mainAdm.php?success=deleted');
+            exit;
+        }
+    }
+
+    $items = $pdo->query('SELECT * FROM items ORDER BY expiration_date ASC, name ASC')->fetchAll();
+} catch (Throwable $e) {
+    error_log('Inventory error: ' . $e->getMessage());
+    $items = [];
+    $databaseError = 'Não foi possível acessar o estoque.';
+}
+
+$rawName = $_SESSION['user_name'] ?? 'Administrador';
+$adminName = htmlspecialchars($rawName, ENT_QUOTES, 'UTF-8');
+$parts = preg_split('/\s+/u', trim($rawName), -1, PREG_SPLIT_NO_EMPTY);
 $initials = '';
+if ($parts) {
+    $initials .= mb_substr($parts[0], 0, 1, 'UTF-8');
+    if (count($parts) > 1) {
+        $initials .= mb_substr(end($parts), 0, 1, 'UTF-8');
+    }
+}
+$initials = htmlspecialchars(mb_strtoupper($initials, 'UTF-8'), ENT_QUOTES, 'UTF-8');
 
-if (!empty($nameParts[0])) {
-    $initials .= mb_substr($nameParts[0], 0, 1, 'UTF-8');
+function esc(string $value): string {
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
-if (count($nameParts) > 1) {
-    $initials .= mb_substr(end($nameParts), 0, 1, 'UTF-8');
+$editItem = null;
+if (isset($_GET['edit'])) {
+    $editId = filter_var($_GET['edit'], FILTER_VALIDATE_INT);
+    foreach ($items as $item) {
+        if ((int) $item['id'] === (int) $editId) {
+            $editItem = $item;
+            break;
+        }
+    }
 }
 
-$initials = htmlspecialchars(
-    mb_strtoupper($initials, 'UTF-8'),
-    ENT_QUOTES,
-    'UTF-8'
-);
+$totalItems = count($items);
+$totalQuantity = array_sum(array_map(fn($item) => (int) $item['quantity'], $items));
+$today = new DateTimeImmutable('today');
+$expiredCount = 0;
+$lowStockCount = 0;
+foreach ($items as $item) {
+    $expiration = DateTimeImmutable::createFromFormat('!Y-m-d', $item['expiration_date']);
+    if ($expiration && $expiration < $today) {
+        $expiredCount++;
+    }
+    if ((int) $item['quantity'] <= 5) {
+        $lowStockCount++;
+    }
+}
 
+$message = '';
+if (isset($_GET['success'])) {
+    $messages = ['created' => 'Item cadastrado com sucesso.', 'updated' => 'Item atualizado com sucesso.', 'deleted' => 'Item removido com sucesso.'];
+    $message = $messages[$_GET['success']] ?? '';
+} elseif (isset($_GET['error'])) {
+    $messages = ['invalid' => 'Preencha os campos corretamente.', 'security' => 'Sessão inválida. Recarregue a página.'];
+    $message = $messages[$_GET['error']] ?? 'Não foi possível concluir a operação.';
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#183b2c">
-
-    <title>Painel administrativo | Escola Agrícola</title>
-
+    <title>Estoque | Painel Administrativo</title>
     <link rel="stylesheet" href="style.css">
-
-    <!-- Estilos específicos do cabeçalho administrativo -->
-    <style>
-        .admin-header-profile {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-end;
-            flex-wrap: nowrap;
-            gap: 14px;
-            flex-shrink: 0;
-            width: auto;
-        }
-
-        .admin-header-profile .profile-link {
-            display: inline-flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 10px;
-            white-space: nowrap;
-            text-decoration: none;
-            color: inherit;
-            width: auto;
-        }
-
-        .admin-header-profile .profile-avatar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .admin-header-profile .profile-name {
-            white-space: nowrap;
-        }
-
-        .admin-header-profile .logout-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            white-space: nowrap;
-
-            padding: 9px 14px;
-            border: 1px solid #d8ded5;
-            border-radius: 8px;
-
-            background: transparent;
-            color: #647064;
-
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-
-            transition: background 0.2s ease,
-                        color 0.2s ease,
-                        border-color 0.2s ease;
-        }
-
-        .admin-header-profile .logout-button:hover {
-            background: #fff0ed;
-            border-color: #e8c5bf;
-            color: #c0392b;
-        }
-
-        @media (max-width: 1100px) {
-            .dashboard-header {
-                flex-wrap: wrap;
-            }
-
-            .admin-header-profile {
-                margin-left: auto;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .admin-header-profile {
-                gap: 9px;
-            }
-
-            .admin-header-profile .profile-name {
-                display: none;
-            }
-        }
-    </style>
 </head>
+<body class="dashboard-page inventory-page">
+<div class="dashboard-shell">
+    <header class="dashboard-header">
+        <a class="dashboard-brand" href="mainAdm.php">
+            <span class="brand-icon">EA</span>
+            <span class="brand-name">Escola Agrícola</span>
+        </a>
+        <nav class="dashboard-nav" aria-label="Navegação administrativa">
+            <a class="active" href="mainAdm.php">Estoque</a>
+            <a href="mainUsuario.php">Ver área do usuário</a>
+        </nav>
+        <div class="profile-actions">
+            <span class="profile-link">
+                <span class="profile-avatar"><?= $initials ?></span>
+                <span class="profile-name"><?= $adminName ?></span>
+            </span>
+            <a class="logout-button" href="logout.php">Sair</a>
+        </div>
+    </header>
 
-<body class="dashboard-page admin-page">
-
-    <div class="dashboard-shell">
-
-        <!-- Cabeçalho administrativo -->
-        <header class="dashboard-header">
-
-            <a
-                class="brand dashboard-brand"
-                href="mainAdm.php"
-                aria-label="Escola Agrícola, painel administrativo"
-            >
-                <span class="brand-mark" aria-hidden="true">⌁</span>
-                <span>Escola Agrícola</span>
-            </a>
-
-            <nav class="dashboard-nav" aria-label="Navegação administrativa">
-
-                <a class="nav-link active" href="#inicio" aria-current="page">
-                    Visão geral
-                </a>
-
-                <a class="nav-link" href="#estudantes">
-                    Estudantes
-                </a>
-
-                <a class="nav-link" href="#cursos">
-                    Cursos
-                </a>
-
-                <a class="nav-link" href="#relatorios">
-                    Relatórios
-                </a>
-
-            </nav>
-
-            <!-- Perfil e logout na mesma linha -->
-            <div class="admin-header-profile">
-
-                <a class="profile-link" href="#perfil">
-
-                    <span class="profile-avatar" aria-hidden="true">
-                        <?= $initials ?>
-                    </span>
-
-                    <span class="profile-name">
-                        <?= $adminName ?>
-                    </span>
-
-                </a>
-
-                <a href="logout.php" class="logout-button">
-                    Sair
-                </a>
-
+    <main>
+        <section class="inventory-heading">
+            <div>
+                <span class="dashboard-eyebrow">GESTÃO DE INSUMOS</span>
+                <h1>Controle de estoque</h1>
+                <p>Cadastre, edite e acompanhe os itens disponíveis na escola.</p>
             </div>
+        </section>
 
-        </header>
+        <?php if (!empty($message)): ?>
+            <div class="inventory-alert <?= isset($_GET['success']) ? 'success' : 'danger' ?>"><?= esc($message) ?></div>
+        <?php endif; ?>
+        <?php if (!empty($databaseError)): ?>
+            <div class="inventory-alert danger"><?= esc($databaseError) ?></div>
+        <?php endif; ?>
 
-        <main class="dashboard-main" id="inicio">
+        <section class="inventory-stats">
+            <article><span>Tipos de itens</span><strong><?= $totalItems ?></strong></article>
+            <article><span>Quantidade total</span><strong><?= $totalQuantity ?></strong></article>
+            <article><span>Estoque baixo</span><strong><?= $lowStockCount ?></strong></article>
+            <article><span>Itens vencidos</span><strong><?= $expiredCount ?></strong></article>
+        </section>
 
-            <!-- Apresentação -->
-            <section
-                class="dashboard-hero admin-hero"
-                aria-labelledby="admin-title"
-            >
+        <section class="inventory-layout">
+            <aside class="inventory-form-card">
+                <h2><?= $editItem ? 'Editar item' : 'Novo item' ?></h2>
+                <form method="post" action="mainAdm.php">
+                    <input type="hidden" name="csrf_token" value="<?= esc($csrfToken) ?>">
+                    <input type="hidden" name="action" value="<?= $editItem ? 'update' : 'create' ?>">
+                    <?php if ($editItem): ?>
+                        <input type="hidden" name="id" value="<?= (int) $editItem['id'] ?>">
+                    <?php endif; ?>
 
-                <img
-                    class="hero-image"
-                    src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1800&q=85"
-                    alt="Plantação verde ao nascer do sol"
-                >
+                    <label for="name">Nome do item</label>
+                    <input id="name" name="name" type="text" maxlength="120" required
+                           placeholder="Ex.: Leite"
+                           value="<?= $editItem ? esc($editItem['name']) : '' ?>">
 
-                <div class="hero-content">
+                    <label for="quantity">Quantidade</label>
+                    <input id="quantity" name="quantity" type="number" min="0" step="1" required
+                           placeholder="0"
+                           value="<?= $editItem ? (int) $editItem['quantity'] : '' ?>">
 
-                    <p class="eyebrow">
-                        PAINEL ADMINISTRATIVO
-                    </p>
+                    <label for="expiration_date">Data de validade</label>
+                    <input id="expiration_date" name="expiration_date" type="date" required
+                           value="<?= $editItem ? esc($editItem['expiration_date']) : '' ?>">
 
-                    <h1 id="admin-title">
-                        Bem-vindo, <?= $adminName ?>.
-                    </h1>
+                    <button class="inventory-primary" type="submit">
+                        <?= $editItem ? 'Salvar alterações' : 'Adicionar item' ?>
+                    </button>
+                    <?php if ($editItem): ?>
+                        <a class="inventory-secondary" href="mainAdm.php">Cancelar edição</a>
+                    <?php endif; ?>
+                </form>
+            </aside>
 
-                    <p>
-                        Acompanhe a comunidade escolar e mantenha
-                        cursos e atividades em movimento.
-                    </p>
-
-                    <div class="admin-hero-actions">
-
-                        <a class="hero-button" href="#estudantes">
-                            Gerenciar estudantes
-                            <span aria-hidden="true">→</span>
-                        </a>
-
-                        <a class="admin-secondary-link" href="#cursos">
-                            Ver cursos
-                        </a>
-
-                    </div>
-
-                </div>
-
-                <p class="hero-caption">
-                    ETEC Orlando Quagliato · Gestão escolar
-                </p>
-
-            </section>
-
-            <!-- Indicadores gerais -->
-            <section class="admin-overview" aria-labelledby="overview-title">
-
-                <div class="section-heading">
-
+            <section class="inventory-table-card">
+                <div class="inventory-table-heading">
                     <div>
-                        <p class="section-kicker">RESUMO DA ESCOLA</p>
-                        <h2 id="overview-title">Visão geral</h2>
+                        <span class="dashboard-eyebrow">INVENTÁRIO</span>
+                        <h2>Itens cadastrados</h2>
                     </div>
-
-                    <span class="admin-data-note">
-                        Dados de demonstração
-                    </span>
-
                 </div>
 
-                <div class="admin-stat-grid">
-
-                    <article class="admin-stat">
-                        <span class="admin-stat-label">Estudantes ativos</span>
-                        <strong>248</strong>
-                        <span class="admin-stat-note">em todas as unidades</span>
-                    </article>
-
-                    <article class="admin-stat">
-                        <span class="admin-stat-label">Cursos publicados</span>
-                        <strong>12</strong>
-                        <span class="admin-stat-note">2 em preparação</span>
-                    </article>
-
-                    <article class="admin-stat">
-                        <span class="admin-stat-label">Solicitações pendentes</span>
-                        <strong>08</strong>
-                        <span class="admin-stat-note">aguardando análise</span>
-                    </article>
-
-                    <article class="admin-stat">
-                        <span class="admin-stat-label">Frequência média</span>
-                        <strong>94<span class="stat-percent">%</span></strong>
-                        <span class="admin-stat-note">neste mês</span>
-                    </article>
-
+                <div class="admin-table-wrapper">
+                    <table class="admin-table inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantidade</th>
+                                <th>Validade</th>
+                                <th>Situação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php if (empty($items)): ?>
+                            <tr><td colspan="5" class="inventory-empty">Nenhum item cadastrado.</td></tr>
+                        <?php else: foreach ($items as $item):
+                            $expiration = DateTimeImmutable::createFromFormat('!Y-m-d', $item['expiration_date']);
+                            $status = 'Válido';
+                            $statusClass = 'active';
+                            if ($expiration && $expiration < $today) {
+                                $status = 'Vencido';
+                                $statusClass = 'pending';
+                            } elseif ($expiration && $expiration <= $today->modify('+30 days')) {
+                                $status = 'Próximo do vencimento';
+                                $statusClass = 'pending';
+                            }
+                        ?>
+                            <tr>
+                                <td><strong><?= esc($item['name']) ?></strong></td>
+                                <td><?= (int) $item['quantity'] ?></td>
+                                <td><?= esc(date('d/m/Y', strtotime($item['expiration_date']))) ?></td>
+                                <td><span class="admin-status <?= $statusClass ?>"><?= esc($status) ?></span></td>
+                                <td class="inventory-actions">
+                                    <a class="inventory-edit" href="mainAdm.php?edit=<?= (int) $item['id'] ?>">Editar</a>
+                                    <form method="post" action="mainAdm.php" onsubmit="return confirm('Excluir este item?');">
+                                        <input type="hidden" name="csrf_token" value="<?= esc($csrfToken) ?>">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="id" value="<?= (int) $item['id'] ?>">
+                                        <button class="inventory-delete" type="submit">Excluir</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
                 </div>
-
             </section>
+        </section>
+    </main>
 
-            <div class="admin-workspace">
-
-                <!-- Estudantes -->
-                <section
-                    class="admin-section"
-                    id="estudantes"
-                    aria-labelledby="students-title"
-                >
-
-                    <div class="section-heading">
-
-                        <div>
-                            <p class="section-kicker">COMUNIDADE</p>
-                            <h2 id="students-title">Estudantes recentes</h2>
-                        </div>
-
-                        <a class="text-link" href="#estudantes">
-                            Ver lista <span aria-hidden="true">→</span>
-                        </a>
-
-                    </div>
-
-                    <div class="admin-list">
-
-                        <article class="admin-list-row">
-                            <span class="admin-list-avatar">MC</span>
-
-                            <div class="admin-list-copy">
-                                <h3>Marina Costa</h3>
-                                <p>Unidade Rural · Técnico em Agropecuária</p>
-                            </div>
-
-                            <span class="admin-pill pill-active">Ativo</span>
-                        </article>
-
-                        <article class="admin-list-row">
-                            <span class="admin-list-avatar avatar-gold">JP</span>
-
-                            <div class="admin-list-copy">
-                                <h3>João Pedro Lima</h3>
-                                <p>Unidade Urbana · Técnico em Meio Ambiente</p>
-                            </div>
-
-                            <span class="admin-pill pill-pending">Pendente</span>
-                        </article>
-
-                        <article class="admin-list-row">
-                            <span class="admin-list-avatar avatar-blue">LS</span>
-
-                            <div class="admin-list-copy">
-                                <h3>Luiza Santos</h3>
-                                <p>Unidade Rural · Técnico em Agropecuária</p>
-                            </div>
-
-                            <span class="admin-pill pill-active">Ativo</span>
-                        </article>
-
-                    </div>
-
-                </section>
-
-                <!-- Cursos -->
-                <section
-                    class="admin-section"
-                    id="cursos"
-                    aria-labelledby="courses-title"
-                >
-
-                    <div class="section-heading">
-
-                        <div>
-                            <p class="section-kicker">ENSINO</p>
-                            <h2 id="courses-title">Cursos em destaque</h2>
-                        </div>
-
-                        <a class="text-link" href="#cursos">
-                            Ver cursos <span aria-hidden="true">→</span>
-                        </a>
-
-                    </div>
-
-                    <div class="admin-list">
-
-                        <article class="admin-course-row">
-                            <div class="admin-course-icon icon-leaf" aria-hidden="true">✳</div>
-
-                            <div class="admin-list-copy">
-                                <h3>Técnico em Agropecuária</h3>
-                                <p>Unidade Rural · 86 estudantes</p>
-                            </div>
-
-                            <span class="course-state"><span></span>Publicado</span>
-                        </article>
-
-                        <article class="admin-course-row">
-                            <div class="admin-course-icon icon-sun" aria-hidden="true">◉</div>
-
-                            <div class="admin-list-copy">
-                                <h3>Técnico em Meio Ambiente</h3>
-                                <p>Unidade Urbana · 54 estudantes</p>
-                            </div>
-
-                            <span class="course-state"><span></span>Publicado</span>
-                        </article>
-
-                        <article class="admin-course-row">
-                            <div class="admin-course-icon icon-water" aria-hidden="true">≈</div>
-
-                            <div class="admin-list-copy">
-                                <h3>Gestão de Recursos Hídricos</h3>
-                                <p>Unidade Rural · 32 estudantes</p>
-                            </div>
-
-                            <span class="course-state state-draft"><span></span>Rascunho</span>
-                        </article>
-
-                    </div>
-
-                </section>
-
-            </div>
-
-            <!-- Atividade recente -->
-            <section
-                class="admin-activity"
-                id="relatorios"
-                aria-labelledby="activity-title"
-            >
-
-                <div class="section-heading">
-
-                    <div>
-                        <p class="section-kicker">ACOMPANHAMENTO</p>
-                        <h2 id="activity-title">Atividade recente</h2>
-                    </div>
-
-                    <a class="text-link" href="#relatorios">
-                        Abrir relatórios <span aria-hidden="true">→</span>
-                    </a>
-
-                </div>
-
-                <div class="activity-row">
-                    <span class="activity-marker marker-green" aria-hidden="true"></span>
-
-                    <p>
-                        <strong>Nova solicitação de matrícula</strong>
-                        <span>João Pedro Lima · Técnico em Meio Ambiente</span>
-                    </p>
-
-                    <time datetime="2026-10-28T09:14">09:14</time>
-                </div>
-
-                <div class="activity-row">
-                    <span class="activity-marker marker-gold" aria-hidden="true"></span>
-
-                    <p>
-                        <strong>Curso atualizado</strong>
-                        <span>Técnico em Agropecuária · Unidade Rural</span>
-                    </p>
-
-                    <time datetime="2026-10-28T08:42">08:42</time>
-                </div>
-
-            </section>
-
-        </main>
-
-        <footer class="dashboard-footer">
-            ETEC Orlando Quagliato
-            <span aria-hidden="true">·</span>
-            Unidades Rurais e Urbanas
-        </footer>
-
-    </div>
-
+    <footer class="dashboard-footer">
+        <p>Escola Agrícola</p>
+        <span>Gestão de estoque</span>
+    </footer>
+</div>
 </body>
 </html>
+<?php exit; ?>
 ```

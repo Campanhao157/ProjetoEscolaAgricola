@@ -13,3 +13,20 @@ CREATE TABLE IF NOT EXISTS users (
 INSERT INTO users (id, name, email, password, role) VALUES
     (1, 'Administrador', 'admin@escolaagricola.com', 'Admin@123', 'admin'),
     (2, 'Usuário de Teste', 'usuario@escolaagricola.com', 'User@123', 'user');
+
+-- Itens do estoque escolar.
+CREATE TABLE IF NOT EXISTS items (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    quantity INTEGER NOT NULL,
+    expiration_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO items (name, quantity, expiration_date) VALUES
+    ('Leite', 50, '2027-12-31'),
+    ('Queijo', 40, '2027-12-31'),
+    ('Doce de Leite', 30, '2027-12-31'),
+    ('Linguiça de porco', 25, '2027-12-31'),
+    ('Carne Suína', 35, '2027-12-31'),
+    ('Ovos', 60, '2027-12-31');
