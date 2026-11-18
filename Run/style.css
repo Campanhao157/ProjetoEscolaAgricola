@@ -1617,3 +1617,326 @@ img {
         padding: 26px 20px;
     }
 }
+
+/* ==========================================================
+   17. PAINEL DE ESTOQUE
+========================================================== */
+
+.inventory-page main {
+    padding-top: 40px;
+}
+
+.inventory-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.dashboard-eyebrow {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+.inventory-heading h1 {
+    color: var(--primary-dark);
+    font-size: clamp(26px, 3vw, 36px);
+    line-height: 1.2;
+}
+
+.inventory-heading p {
+    margin-top: 9px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.inventory-alert {
+    margin-bottom: 20px;
+    padding: 13px 16px;
+    border-radius: var(--radius-small);
+    font-size: 13px;
+}
+
+.inventory-alert.success {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+.inventory-alert.danger {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+.inventory-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.inventory-stats article {
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.inventory-stats article span {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.inventory-stats article strong {
+    display: block;
+    margin-top: 6px;
+    color: var(--primary-dark);
+    font-size: 28px;
+    line-height: 1.2;
+}
+
+.inventory-layout {
+    display: grid;
+    grid-template-columns: minmax(240px, 0.75fr) minmax(0, 2fr);
+    align-items: start;
+    gap: 20px;
+}
+
+.inventory-form-card,
+.inventory-table-card {
+    min-width: 0;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.inventory-form-card h2,
+.inventory-table-heading h2 {
+    color: var(--primary-dark);
+    font-size: 18px;
+}
+
+.inventory-form-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 20px;
+}
+
+.inventory-form-card label {
+    margin-top: 6px;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.inventory-form-card input {
+    width: 100%;
+    min-height: 43px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-small);
+    outline: none;
+    background: var(--surface-soft);
+    color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.inventory-form-card input:focus,
+.quantity-update-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(36, 92, 59, 0.12);
+}
+
+.inventory-primary,
+.inventory-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 43px;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: var(--radius-small);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.inventory-primary {
+    margin-top: 9px;
+    background: var(--primary);
+    color: white;
+}
+
+.inventory-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.inventory-secondary {
+    background: var(--surface-soft);
+    color: var(--text-secondary);
+}
+
+.inventory-secondary:hover {
+    background: var(--border);
+    color: var(--text);
+}
+
+.inventory-table-heading {
+    margin-bottom: 18px;
+}
+
+.inventory-table {
+    min-width: 760px;
+}
+
+.inventory-table th {
+    white-space: nowrap;
+}
+
+.inventory-table td {
+    vertical-align: middle;
+}
+
+.inventory-table tbody tr:hover {
+    background: #fbfcfa;
+}
+
+.inventory-empty {
+    padding: 32px 18px !important;
+    color: var(--text-secondary) !important;
+    text-align: center;
+}
+
+.quantity-update-form {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.quantity-update-input {
+    width: 76px;
+    min-height: 35px;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    outline: none;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.quantity-update-button,
+.inventory-edit,
+.inventory-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    transition: background 0.2s, color 0.2s;
+}
+
+.quantity-update-button {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.quantity-update-button:hover,
+.inventory-edit:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.inventory-actions {
+    white-space: nowrap;
+}
+
+.inventory-actions form {
+    display: inline-flex;
+    margin-left: 5px;
+}
+
+.inventory-edit {
+    background: var(--surface-soft);
+    color: var(--text);
+}
+
+.inventory-delete {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+.inventory-delete:hover {
+    background: var(--danger);
+    color: white;
+}
+
+.inventory-page .dashboard-footer {
+    margin-top: 38px;
+}
+
+@media (max-width: 900px) {
+    .inventory-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .inventory-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .inventory-page main {
+        padding-top: 28px;
+    }
+
+    .inventory-form-card,
+    .inventory-table-card {
+        padding: 18px;
+    }
+
+    .inventory-stats {
+        gap: 10px;
+    }
+
+    .inventory-stats article {
+        padding: 15px;
+    }
+
+    .inventory-stats article strong {
+        font-size: 24px;
+    }
+
+    .inventory-heading p {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 400px) {
+    .inventory-stats article span {
+        font-size: 11px;
+    }
+
+    .inventory-form-card,
+    .inventory-table-card {
+        padding: 14px;
+    }
+}

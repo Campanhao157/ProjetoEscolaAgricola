@@ -80,6 +80,24 @@ try {
             exit;
         }
 
+        if ($action === 'update_quantity') {
+            $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            $quantity = filter_var($_POST['quantity'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+
+            if ($id === false || $quantity === false) {
+                header('Location: mainAdm.php?error=invalid');
+                exit;
+            }
+
+            $statement = $pdo->prepare('UPDATE items SET quantity = :quantity WHERE id = :id');
+            $statement->execute([
+                ':quantity' => $quantity,
+                ':id' => $id
+            ]);
+            header('Location: mainAdm.php?success=quantity_updated');
+            exit;
+        }
+
         if ($action === 'delete') {
             $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
             $statement = $pdo->prepare('DELETE FROM items WHERE id = :id');
@@ -140,7 +158,7 @@ foreach ($items as $item) {
 
 $message = '';
 if (isset($_GET['success'])) {
-    $messages = ['created' => 'Item cadastrado com sucesso.', 'updated' => 'Item atualizado com sucesso.', 'deleted' => 'Item removido com sucesso.'];
+    $messages = ['created' => 'Item cadastrado com sucesso.', 'updated' => 'Item atualizado com sucesso.', 'quantity_updated' => 'Quantidade atualizada com sucesso.', 'deleted' => 'Item removido com sucesso.'];
     $message = $messages[$_GET['success']] ?? '';
 } elseif (isset($_GET['error'])) {
     $messages = ['invalid' => 'Preencha os campos corretamente.', 'security' => 'Sessão inválida. Recarregue a página.'];
@@ -267,7 +285,24 @@ if (isset($_GET['success'])) {
                         ?>
                             <tr>
                                 <td><strong><?= esc($item['name']) ?></strong></td>
-                                <td><?= (int) $item['quantity'] ?></td>
+                                <td>
+                                    <form class="quantity-update-form" method="post" action="mainAdm.php">
+                                        <input type="hidden" name="csrf_token" value="<?= esc($csrfToken) ?>">
+                                        <input type="hidden" name="action" value="update_quantity">
+                                        <input type="hidden" name="id" value="<?= (int) $item['id'] ?>">
+                                        <input
+                                            class="quantity-update-input"
+                                            name="quantity"
+                                            type="number"
+                                            min="0"
+                                            step="1"
+                                            required
+                                            value="<?= (int) $item['quantity'] ?>"
+                                            aria-label="Nova quantidade de <?= esc($item['name']) ?>"
+                                        >
+                                        <button class="quantity-update-button" type="submit">Salvar</button>
+                                    </form>
+                                </td>
                                 <td><?= esc(date('d/m/Y', strtotime($item['expiration_date']))) ?></td>
                                 <td><span class="admin-status <?= $statusClass ?>"><?= esc($status) ?></span></td>
                                 <td class="inventory-actions">

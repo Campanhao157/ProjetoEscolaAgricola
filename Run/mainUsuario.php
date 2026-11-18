@@ -127,9 +127,9 @@ try {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
 
-    // Consulta os itens com quantidade disponível, ordenados por data de validade e nome.
+    // Consulta todos os itens cadastrados, inclusive os que estão sem estoque.
     $items = $pdo->query(
-        'SELECT * FROM items WHERE quantity > 0 ORDER BY expiration_date ASC, name ASC'
+        'SELECT * FROM items ORDER BY expiration_date ASC, name ASC'
     )->fetchAll();
 
 } catch (Throwable $e) {
@@ -137,7 +137,7 @@ try {
     // Em caso de erro, registra no log e define mensagem de erro para o usuário.
     error_log('Erro na visualização de estoque: ' . $e->getMessage());
     $items = [];
-    $databaseError = 'Não foi possível carregar os itens disponíveis.';
+    $databaseError = 'Não foi possível carregar o estoque.';
 
 }
 
@@ -145,7 +145,7 @@ try {
 // 7. CÁLCULOS PARA EXIBIÇÃO
 // ==========================================================
 
-// Calcula a quantidade total de itens disponíveis.
+// Calcula a quantidade total de itens cadastrados.
 $totalQuantity = array_sum(array_map(fn($item) => (int) $item['quantity'], $items));
 
 // Data atual para comparações.
@@ -162,7 +162,7 @@ $today = new DateTimeImmutable('today');
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Itens disponíveis | Escola Agrícola</title>
+    <title>Estoque | Escola Agrícola</title>
 
     <link rel="stylesheet" href="style.css">
 
@@ -191,7 +191,7 @@ $today = new DateTimeImmutable('today');
             <nav class="dashboard-nav" aria-label="Navegação do usuário">
 
                 <a class="active" href="mainUsuario.php">
-                    Itens disponíveis
+                    Estoque
                 </a>
 
             </nav>
@@ -241,7 +241,7 @@ $today = new DateTimeImmutable('today');
                     </h1>
 
                     <p>
-                        Consulte os itens disponíveis e suas respectivas quantidades.
+                        Consulte todos os itens cadastrados, suas quantidades e datas de validade.
                     </p>
 
                 </div>
@@ -261,7 +261,7 @@ $today = new DateTimeImmutable('today');
             <section class="inventory-stats user-inventory-stats">
 
                 <article>
-                    <span>Tipos disponíveis</span>
+                    <span>Tipos cadastrados</span>
                     <strong><?= count($items) ?></strong>
                 </article>
 
@@ -285,7 +285,7 @@ $today = new DateTimeImmutable('today');
                         </span>
 
                         <h2>
-                            Itens disponíveis
+                            Itens do estoque
                         </h2>
 
                     </div>
@@ -309,7 +309,7 @@ $today = new DateTimeImmutable('today');
                         <?php if (empty($items)): ?>
                             <tr>
                                 <td colspan="4" class="inventory-empty">
-                                    Não há itens disponíveis no momento.
+                                    Nenhum item cadastrado no estoque.
                                 </td>
                             </tr>
                         <?php else: foreach ($items as $item):
@@ -318,6 +318,9 @@ $today = new DateTimeImmutable('today');
                             $statusClass = 'active';
                             if ($expiration && $expiration < $today) {
                                 $status = 'Vencido';
+                                $statusClass = 'pending';
+                            } elseif ((int) $item['quantity'] <= 0) {
+                                $status = 'Sem estoque';
                                 $statusClass = 'pending';
                             } elseif ($expiration && $expiration <= $today->modify('+30 days')) {
                                 $status = 'Vence em breve';
