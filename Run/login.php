@@ -56,7 +56,21 @@ function redirect(string $url): void
     header('Location: ' . $url, true, 303);
     exit;
 }
+    
+    function emailDomainEaxistis(string $email): bool
+    {
+        $domain = substr(strrchr($email, '@'), 1);
 
+        if (!domain) {
+            return false;
+        }
+        if (checkdnsrr($domain, 'MX')){
+            return true;
+        }
+
+        return checkdnsrr($domain, 'A')||
+        checkdnsrr($domain, 'AAAA');
+    }
 // ==========================================================
 // 4. CONEXÃO COM O BANCO DE DADOS
 // ==========================================================
